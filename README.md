@@ -9,6 +9,7 @@ In this project, you will prove your mastery of the following learning objective
 
 ![Diagram of CI/CD Pipeline we will be building.](udapeople.png)
 
+
 ### Instructions
 
 * [Selling CI/CD](instructions/0-selling-cicd.md)
