@@ -83,7 +83,7 @@ jobs:
       - run: npm i
       - run: npm run test 
       - save_cache:
-        paths: [frontend/node_modules]
+        paths: frontend/node_modules
         key: frontend-test
                 
   test-backend:
@@ -96,15 +96,23 @@ jobs:
             
   scan-frontend:
     docker:
-      # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
+      - checkout
       # Restore from cache
+      - restore_cache:
+        keys: [frontend-scan]
       # Your job code here
+      - run: cd frontend
+      - run: npm audit --audit-level=critical
+      - save_cache:
+        paths: frontend/node_modules
+        key: frontend-scan
 
   scan-backend:
     docker:
-      # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       # Restore from cache
