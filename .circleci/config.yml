@@ -4,6 +4,9 @@ executors:
   node:
     docker:
       - image: circleci/node:13.8.0
+  aws:
+    docker:
+      - image: amazon/aws-cli    
             
 jobs:
   build-frontend:
@@ -89,6 +92,38 @@ jobs:
             npm audit fix --audit-level=critical  
 
 
+  deploy-infrastructure:
+    executor: aws
+    steps:
+      - checkout
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --tags project=pr5-frontend \
+              --stack-name "backend-deployment" \
+              --parameter-overrides ID="fhi745843utfje"  
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=pr5-backend \
+              --stack-name "frontend-deployment" \
+              --parameter-overrides ID="fhi745843utfje"  
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            # Your code here
+            exit 1
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - cdond-c3-projectstarter/.circleci/ansible/inventory.txt
+      # Here's where you will add some code to rollback on failure            
+
+
 workflows:
   default:
     jobs:
@@ -102,3 +137,5 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [build-frontend, build-backend]    
