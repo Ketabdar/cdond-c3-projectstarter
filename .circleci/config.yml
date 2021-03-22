@@ -122,6 +122,9 @@ jobs:
               --stack-name frontend-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" 
       - run:
+          name: Install tar and gzip to support workspaces
+          command: yum install -y tar && yum install -y gzip
+      - run:
           name: Add back-end url to ansible inventory
           command: |
             BACKEND_URL=$(aws ec2 describe-instances \
