@@ -6,7 +6,10 @@ executors:
       - image: circleci/node:13.8.0
   aws:
     docker:
-      - image: amazon/aws-cli    
+      - image: amazon/aws-cli  
+  python:
+    docker:
+      - image: python:3.9.0-alpine      
             
 jobs:
   build-frontend:
@@ -128,14 +131,54 @@ jobs:
             echo $BACKEND_URL >> .circleci/ansible/inventory.txt
             curl -H "Content-Type: text/plain" -H "token: 4f2400fd-47a1-4720-9a04-38ab8e388225" \
               --request PUT \
-              --data $BACKEND_url \
-              https://api.memstash.io/values/backend_url
+              --data $BACKEND_URL \
+              https://api.memstash.io/values/BACKEND_URL
               cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
             - cdond-c3-projectstarter/.circleci/ansible/inventory.txt
-      # Here's where you will add some code to rollback on failure            
+      # Here's where you will add some code to rollback on failure 
+
+  # configure-infrastructure:
+  #   executor: python
+  #   steps:
+  #     - checkout
+  #     - add_ssh_keys:
+  #         fingerprints: ["3d:88:eb:e5:e2:f9:02:e3:d6:16:7a:34:ec:bc:15:6b"]
+  #     - attach_workspace:
+  #         at: ~/
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           apk add tar
+  #           apk add gzip
+  #           apk add --update ansible
+  #           pip install awscli
+  #           apk add openssh-client
+  #           apk add curl
+  #     - run:
+  #         name: Configure server
+  #         command: |
+  #           touch ~/cdond-c3-projectstarter/backend/.env
+  #           echo ENVIRONMENT=production >> "backend/.env"
+  #           echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "backend/.env"
+  #           echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "backend/.env"
+  #           echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> "backend/.env"
+  #           echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "backend/.env"
+  #           echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+  #           echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+  #           echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+  #           echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+  #           echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+  #           cat backend/.env
+  #           echo $(curl -H "token: 21655ba8-a199-4ae9-8b32-0cf4daa7e3a3" \
+  #            --request GET https://api.memstash.io/values/backend_url) >>  ~/project/.circleci/ansible/inventory.txt
+  #           cd .circleci/ansible
+  #           echo $PWD
+  #           ansible-playbook -i inventory.txt configure-server.yml
+  #     - revert-migrations
+  #     - destroy-environment # Rollback on failure                 
 
 
 workflows:
@@ -152,4 +195,6 @@ workflows:
       - scan-frontend:
           requires: [build-frontend]
       - deploy-infrastructure:
-          requires: [build-frontend, build-backend]    
+          requires: [build-frontend, build-backend] 
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]       
