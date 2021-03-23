@@ -143,45 +143,45 @@ jobs:
             - .circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure 
 
-  # configure-infrastructure:
-  #   executor: python
-  #   steps:
-  #     - checkout
-  #     - add_ssh_keys:
-  #         fingerprints: ["3d:88:eb:e5:e2:f9:02:e3:d6:16:7a:34:ec:bc:15:6b"]
-  #     - attach_workspace:
-  #         at: ~/
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           apk add tar
-  #           apk add gzip
-  #           apk add --update ansible
-  #           pip install awscli
-  #           apk add openssh-client
-  #           apk add curl
-  #     - run:
-  #         name: Configure server
-  #         command: |
-  #           touch ~/cdond-c3-projectstarter/backend/.env
-  #           echo ENVIRONMENT=production >> "backend/.env"
-  #           echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "backend/.env"
-  #           echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "backend/.env"
-  #           echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> "backend/.env"
-  #           echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "backend/.env"
-  #           echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
-  #           echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
-  #           echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
-  #           echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-  #           echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
-  #           cat backend/.env
-  #           echo $(curl -H "token: 21655ba8-a199-4ae9-8b32-0cf4daa7e3a3" \
-  #            --request GET https://api.memstash.io/values/backend_url) >>  ~/project/.circleci/ansible/inventory.txt
-  #           cd .circleci/ansible
-  #           echo $PWD
-  #           ansible-playbook -i inventory.txt configure-server.yml
-  #     - revert-migrations
-  #     - destroy-environment # Rollback on failure                 
+  configure-infrastructure:
+    executor: python
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["3d:88:eb:e5:e2:f9:02:e3:d6:16:7a:34:ec:bc:15:6b"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add tar
+            apk add gzip
+            apk add --update ansible
+            pip install awscli
+            apk add openssh-client
+            apk add curl
+      - run:
+          name: Configure server
+          command: |
+            touch ~/cdond-c3-projectstarter/backend/.env
+            echo ENVIRONMENT=production >> "backend/.env"
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "backend/.env"
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+            cat backend/.env
+            echo $(curl -H "token: 4f2400fd-47a1-4720-9a04-38ab8e388225" \
+             --request GET https://api.memstash.io/values/backend_url) >>  ~/cdond-c3-projectstarter/.circleci/ansible/inventory.txt
+            cd .circleci/ansible
+            echo $PWD
+            ansible-playbook -i inventory.txt configure-server.yml
+      #- revert-migrations
+      #- destroy-environment # Rollback on failure                 
 
 
 workflows:
@@ -199,5 +199,5 @@ workflows:
       #    requires: [build-frontend]
       - deploy-infrastructure:
           requires: [build-frontend, build-backend] 
-      #- configure-infrastructure:
-      #    requires: [deploy-infrastructure]       
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]       
