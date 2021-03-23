@@ -163,7 +163,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            touch ~/cdond-c3-projectstarter/backend/.env
+            touch backend/.env
             echo ENVIRONMENT=production >> "backend/.env"
             echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "backend/.env"
             echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "backend/.env"
@@ -176,7 +176,7 @@ jobs:
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
             cat backend/.env
             echo $(curl -H "token: 4f2400fd-47a1-4720-9a04-38ab8e388225" \
-             --request GET https://api.memstash.io/values/backend_url) >>  ~/cdond-c3-projectstarter/.circleci/ansible/inventory.txt
+             --request GET https://api.memstash.io/values/backend_url) >> .circleci/ansible/inventory.txt
             cd .circleci/ansible
             echo $PWD
             ansible-playbook -i inventory.txt configure-server.yml
