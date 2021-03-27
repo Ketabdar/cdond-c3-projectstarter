@@ -12,7 +12,7 @@ executors:
       - image: python:3.9.0-alpine  
 
 commands:
-  destroy-environment:
+  destroy-environments:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
       workflow_id:
