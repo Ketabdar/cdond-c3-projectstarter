@@ -227,7 +227,7 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID}                
 
 
-run-migrations:
+  run-migrations:
     executor: node
     steps:
       - checkout
@@ -251,8 +251,7 @@ run-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID}     
 
   deploy-frontend:
-    docker:
-      executor: aws
+    executor: aws
     steps:
       - checkout
       - run:
@@ -353,7 +352,7 @@ run-migrations:
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID}  
 
-cleanup:
+  cleanup:
     executor: aws
     steps:
       - checkout
